@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson
+END
+scanner.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/scanner.py
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/5/trunk/src/waveapi/simplejson/LICENSE
+END
+tool.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/tool.py
+END
+encoder.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/encoder.py
+END
+jsonfilter.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/5/trunk/src/waveapi/simplejson/jsonfilter.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/__init__.py
+END
+decoder.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/decoder.py
+END
+ordered_dict.py
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/12/trunk/src/waveapi/simplejson/ordered_dict.py
+END
