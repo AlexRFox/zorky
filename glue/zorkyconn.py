@@ -6,7 +6,7 @@ hosturl = "willisson.org"
 port = 9001
 
 def sendcmd (cmd, game_id = 0):
-    if gameid == 0:
+    if game_id == 0:
         game_id = 38978
     safecmd = urllib.quote (cmd)
     tar = "/api.php?get_data=1&game_id=" + str (game_id) + "&cmd=" + safecmd

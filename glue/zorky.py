@@ -2,6 +2,11 @@ from waveapi import events
 from waveapi import model
 from waveapi import robot
 
+from zorkyconn import *
+
+def start():
+    return "The <i>Great</i> Underground Adventure"
+
 NAME = "playzorky"
 ROOT = "http://%s.appspot.com" % NAME
 
@@ -11,14 +16,20 @@ def add_blip (context, string):
     context.GetRootWavelet().CreateBlip().GetDocument().SetText (string)
 
 def self_added (properties, context):
-    title = context.GetRootWavelet().GetTitle ()
-    add_blip (context, "The current title is: %s" % title) 
+    initial_string = start ()
+    add_blip (context, "<h1>Playing Zork</h1>\n\n%s" % initial_string)
 
-def title_changed (properties, context):
-    old_title = title
-    title = context.GetRootWavelet().GetTitle ()
-    add_blip (context, "The new title of this wavelet is: %s (was %s)"
-              % (title, old_title))
+def blip_created (properties, context):
+    
+
+def blip_submitted (properties, context):
+    blip = context.GetBlipById (properties["blipId"])
+    text = blip.GetDocument().GetText()
+    if text[0] == ">":
+        command = (text.split ("\n")[0])[1:].strip()
+        add_blip (context, sendcmd (command))
+    else:
+        add_blip (context, "I did not recognize that line")
 
 if __name__ == "__main__":
     self_robot = robot.Robot (NAME,
@@ -27,6 +38,7 @@ if __name__ == "__main__":
                            profile_url=ROOT)
 
     self_robot.RegisterHandler (events.WAVELET_SELF_ADDED, self_added)
-    self_robot.RegisterHandler (events.BLIT_SUBMITTED, blip_submitted)
+    self_robot.RegisterHandler (events.WAVELET_BLIP_CREATED, blip_created)
+    self_robot.RegisterHandler (events.BLIP_SUBMITTED, blip_submitted)
 
     self_robot.Run ()
