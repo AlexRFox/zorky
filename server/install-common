@@ -52,7 +52,7 @@ cat > ${site_root}/zorky-conf.php <<!
   \$db_name = '${db_name}';
   \$site_root = '${site_root}';
   \$conf_key = '${conf_key}';
-  \$aux_dir = '${aur_dir}';
+  \$aux_dir = '${aux_dir}';
 ?>
 !
 
@@ -67,6 +67,8 @@ then
 fi
 
 make AUX_DIR=${aux_dir} install
+
+mkdir -p 777 ${aux_dir}/tmp
 
 if [ "$db_mode" = "production" ]
 then
