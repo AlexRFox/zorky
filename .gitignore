@@ -3,3 +3,8 @@
 \#*\#
 .cache
 *.pyc
+*.o
+*.a
+frotz-2.43/dfrotz
+frotz-2.43/frotz
+frotz-2.43/src/soundcard.h

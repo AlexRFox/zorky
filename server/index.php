@@ -8,6 +8,8 @@ $body .= "<div>\n";
 $body .= mklink ("api", "api.php");
 $body .= " | ";
 $body .= mklink ("readlog", "readlog.php");
+$body .= " | ";
+$body .= mklink ("start_game", "api.php?start_game=zork5");
 $body .= "</div>\n";
 
 $body .= "<form action='api.php'>\n";

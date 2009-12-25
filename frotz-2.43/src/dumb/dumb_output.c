@@ -532,4 +532,6 @@ void dumb_init_output(void)
   screen_changes = malloc(screen_cells);
   os_erase_area(1, 1, h_screen_rows, h_screen_cols);
   memset(screen_changes, 0, screen_cells);
+
+  setbuf (stdout, NULL);
 }
