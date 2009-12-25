@@ -71,15 +71,6 @@ make AUX_DIR=${aux_dir} install
 if [ "$db_mode" = "production" ]
 then
     rsync -t -i --files-from=SITE-FILES . ${site_root}/.
-    chmod a+rw ${site_root}/*.template
-
-    cmp dpmt-cron-daily /etc/cron.daily/dpmt-cron-daily > /dev/null 2>&1
-    if [ $? != 0 ]
-    then
-	echo "*** do this as root:"
-	echo "cp dpmt-cron-daily /etc/cron.daily/."
-	exit 1
-    fi
 else
     for f in `cat SITE-FILES`
     do

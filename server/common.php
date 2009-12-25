@@ -235,7 +235,7 @@ function pfinish () {
 		." href='/zorky.css' media='screen' />\n";
 
 
-	$ret .= "<title>Deval Patrick for Governor 2010</title>\n";
+	$ret .= "<title>Zorky</title>\n";
 	$ret .= "</head>\n";
 
 	$ret .= "<body>\n";
