@@ -15,6 +15,9 @@ $body .= "<input type='text' name='cmd' />\n";
 $body .= "<input type='submit' value='Send' />\n";
 $body .= "</form>\n";
 
+
+
+
 pfinish ();
 
 ?>
