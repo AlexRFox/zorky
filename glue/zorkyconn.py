@@ -1,21 +1,28 @@
 #! /usr/bin/env python
 
-import httplib2, urllib, simplejson
+import httplib, urllib, simplejson
 
-#hosturl = "http://willisson.org/zorky.html"
-hosturl = "http://rhino.local:9001/"
+hosturl = "willisson.org"
+port = 9001
 
-def sendcmd (cmd):
+def sendcmd (cmd, game_id = 0):
+    if gameid == 0:
+        game_id = 38978
     safecmd = urllib.quote (cmd)
-    tar = hosturl + "?" + safecmd
-    tar = hosturl
-    h = httplib2.Http (".cache")
-    resp, content = h.request (tar, "GET")
+    tar = "/api.php?get_data=1&game_id=" + str (game_id) + "&cmd=" + safecmd
+    conn = httplib.HTTPConnection (hosturl, port)
+    conn.request ("GET", tar)
+    r1 = conn.getresponse ()
+    encjson = r1.read ()
 
-    content = '{"menu": {   "id": "file",   "value": "File",   "popup": {     "menuitem": [       {"value": "New", "onclick": "CreateNewDoc()"},       {"value": "Open", "onclick": "OpenDoc()"},       {"value": "Close", "onclick": "CloseDoc()"}     ]   } }}'
-
-    decjson = simplejson.loads (content)
+    decjson = simplejson.loads (encjson)
 
     return decjson
 
-print sendcmd ("get all in bag")
+#def start ():
+#    conn = httplib.HTTPConnection (hosturl, port)
+#    conn.request ("GET", tar
+
+
+
+#http://willisson.org:9001/api.php?start_game=zork1&debug=1
