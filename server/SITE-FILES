@@ -2,3 +2,5 @@ index.php
 common.php
 zorky.css
 api.php
+log.php
+readlog.php

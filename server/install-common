@@ -52,7 +52,7 @@ cat > ${site_root}/zorky-conf.php <<!
   \$db_name = '${db_name}';
   \$site_root = '${site_root}';
   \$conf_key = '${conf_key}';
-  \$aux_dir = '${aur_dir}';
+  \$aux_dir = '${aux_dir}';
 ?>
 !
 
@@ -66,15 +66,30 @@ then
 	exit 1
 fi
 
-make AUX_DIR=${aux_dir} install
+mkdir -p -m 777 ${aux_dir}/tmp
+mkdir -p ${aux_dir}/bin
+mkdir -p ${aux_dir}/z5
 
 if [ "$db_mode" = "production" ]
 then
     rsync -t -i --files-from=SITE-FILES . ${site_root}/.
+
+    install -c -m 755 run-dfrotz ${aux_dir}/bin/.
 else
     for f in `cat SITE-FILES`
     do
 	rm -f ${site_root}/${f}
 	ln -s `pwd`/$f ${site_root}/${f}
     done
+
+    dir=`pwd`
+    ln -sf $dir/run-dfrotz ${aux_dir}/bin/.
 fi
+
+if [ ! -x ../frotz-2.43/dfrotz ]
+then
+    echo "do make dumb in frotz first"
+    exit 1
+fi
+install -c -m 755 ../frotz-2.43/dfrotz ${aux_dir}/bin/.
+cp ../z5/* ${aux_dir}/z5/.
