@@ -15,8 +15,10 @@ if ($arg_list_avail_games == 1) {
 	$names = array ();
 
 	$dir = opendir ($aux_dir . "/z5");
-	while (($name = readdir ($dir)) != NULL)
-		$names[] = $name;
+	while (($name = readdir ($dir)) != NULL) {
+		if (ereg ('\.z5$', $name))
+			$names[] = $name;
+	}
 
 	$ret = (object)NULL;
 	$ret->names = $names;
