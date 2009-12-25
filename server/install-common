@@ -1,0 +1,89 @@
+#! /bin/sh
+
+if [ $# != 1 ]
+then
+	echo "usage: install-common mode"
+	exit 1
+fi
+
+db_mode=$1
+host=`hostname -s`
+
+case $db_mode in
+dev | test)
+	user=`id -un`
+	conf_key=${user}-${db_mode}
+	;;
+production)
+	conf_key=${db_mode}
+	;;
+*)
+	echo "invalid db_mode $db_mode"
+	exit 1
+	;;
+esac
+
+
+db_name=dpmt-${conf_key}
+apache_conf_dir=/etc/apache2/conf.d
+apachectl_cmd=apache2ctl
+site_root=/var/www/html/zorky-${conf_key}
+apache_conf=zorky-${host}-${conf_key}.conf
+aux_dir=/var/zorky-${conf_key}
+
+if [ $db_mode = production ]
+then
+    make -q
+    if [ $? != 0 ]
+    then
+	echo "you need to run make"
+	exit 1
+    fi
+else
+    make
+fi
+
+mkdir -p ${site_root}
+
+rm -f ${site_root}/zorky-conf.php
+cat > ${site_root}/zorky-conf.php <<!
+<?php
+  global \$db_name, \$site_root, \$conf_key, \$aux_dir;
+  \$db_name = '${db_name}';
+  \$site_root = '${site_root}';
+  \$conf_key = '${conf_key}';
+  \$aux_dir = '${aur_dir}';
+?>
+!
+
+
+cmp -s $apache_conf $apache_conf_dir/$apache_conf
+if [ $? != 0 ]
+then
+	echo "need apache conf update ... run this as root:"
+	echo ""
+	echo "cp $apache_conf $apache_conf_dir/. ; $apachectl_cmd graceful"
+	exit 1
+fi
+
+make AUX_DIR=${aux_dir} install
+
+if [ "$db_mode" = "production" ]
+then
+    rsync -t -i --files-from=SITE-FILES . ${site_root}/.
+    chmod a+rw ${site_root}/*.template
+
+    cmp dpmt-cron-daily /etc/cron.daily/dpmt-cron-daily > /dev/null 2>&1
+    if [ $? != 0 ]
+    then
+	echo "*** do this as root:"
+	echo "cp dpmt-cron-daily /etc/cron.daily/."
+	exit 1
+    fi
+else
+    for f in `cat SITE-FILES`
+    do
+	rm -f ${site_root}/${f}
+	ln -s `pwd`/$f ${site_root}/${f}
+    done
+fi
