@@ -8,6 +8,7 @@
 
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include <netinet/in.h>
 
@@ -51,6 +52,16 @@ char log_name[1000];
 int orig_stdout;
 int log_fd;
 
+double
+get_secs (void)
+{
+	struct timeval tv;
+	gettimeofday (&tv, NULL);
+	return (tv.tv_sec + tv.tv_usec / 1e6);
+}
+
+double base_secs;
+
 int
 main (int argc, char **argv)
 {
@@ -64,6 +75,8 @@ main (int argc, char **argv)
 	int maxfd;
 	int n;
 	char buf[1000];
+	struct timeval tv;
+	double now;
 
 	setbuf (stdout, NULL);
 	setbuf (stderr, NULL);
@@ -125,6 +138,7 @@ main (int argc, char **argv)
 			fprintf (stderr, "can't create log file\n");
 			exit (1);
 		}
+		fchmod (log_fd, 0666);
 		dup2 (log_fd, 1);
 		dup2 (log_fd, 2);
 	}
@@ -214,6 +228,7 @@ main (int argc, char **argv)
 
 	fcntl (from_frotz, F_SETFL, O_NONBLOCK);
 
+	base_secs = get_secs ();
 	while (1) {
 		FD_ZERO (&rset);
 
@@ -223,7 +238,18 @@ main (int argc, char **argv)
 		if (listen_sock > maxfd)
 			maxfd = listen_sock;
 
+		tv.tv_sec = 1000;
+		tv.tv_usec = 0;
+
 		if (client_sock) {
+			now = get_secs ();
+			if (now - base_secs > .5) {
+				fprintf (stderr, "frotz timeout\n");
+				close (client_sock);
+				client_sock = 0;
+			}
+
+
 			FD_SET (from_frotz, &rset);
 			if (from_frotz > maxfd)
 				maxfd = from_frotz;
@@ -231,9 +257,12 @@ main (int argc, char **argv)
 			FD_SET (client_sock, &rset);
 			if (client_sock > maxfd)
 				maxfd = client_sock;
+
+			tv.tv_sec = 0;
+			tv.tv_usec = 50 * 1000;
 		}
 
-		if (select (maxfd + 1, &rset, NULL, NULL, NULL) < 0) {
+		if (select (maxfd + 1, &rset, NULL, NULL, &tv) < 0) {
 			perror ("select");
 			exit (1);
 		}
@@ -248,19 +277,23 @@ main (int argc, char **argv)
 					client_sock = fd;
 					fcntl (client_sock, F_SETFL,
 					       O_NONBLOCK);
+					base_secs = get_secs ();
 				}
 			}
 		}
 
 		if (client_sock) {
 			if (FD_ISSET (from_frotz, &rset)) {
+				errno = 0;
 				n = read (from_frotz, buf, sizeof buf);
 				if (n == 0
 				    || (n < 0 && errno != EWOULDBLOCK)) {
 					fprintf (stderr,
-						 "frotz died\n");
+						 "frotz died %d %d\n",
+						 n, errno);
 					exit (0);
 				} if (n > 0) {
+					base_secs = get_secs ();
 					write (client_sock, buf, n);
 				}
 			}
