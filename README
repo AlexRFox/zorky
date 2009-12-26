@@ -50,3 +50,9 @@ in zorky/server, run
 
 $ createdb zorky-YOURNAME-dev
 $ psql -f schema zorky-YOURNAME-dev
+
+copy zorky-rhino-pace-dev.conf to zorky-YOUR_HOSTNAME-YOUR_NAME-dev.conf
+edit in obvious substitutions
+
+run install-dev
+
