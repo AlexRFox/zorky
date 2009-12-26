@@ -56,6 +56,3 @@ def game_list ():
     decjson = simplejson.load (r1)
 
     return decjson
-
-print start ("a3")
-print send_cmd ("a3", "l")
