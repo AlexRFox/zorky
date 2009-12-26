@@ -8,3 +8,5 @@ handlers:
   script: zorky.py
 - url: /assets
   static_dir: assets
+- url: /zorkyconn.py
+  script: zorkyconn.py
