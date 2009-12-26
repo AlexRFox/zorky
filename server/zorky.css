@@ -52,4 +52,59 @@ table {
 	border-spacing: 0;
 }
 
-    
+/* ================================================================ */
+
+body {
+    color: #222; 
+    font-family:Tahoma, Geneva, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.menu {
+    background: #eee;
+    border-bottom: 1px solid #888;
+}
+
+.menu li {
+    width: 8em;
+    float:left;
+    border-right: 2px solid #aaa;
+    padding: .3em;
+
+}
+
+h1 {
+    margin-top: .5em;
+    margin-bottom: .25em;
+}
+
+.games_list {
+    border: 1px solid #888;
+    margin: 1em;
+}
+
+.games_list .games_heading {
+    background: #eee;
+    border-bottom: 1px solid #888;
+}
+
+.games_list tr {
+    border-bottom: 1px solid #aaa;
+}
+
+.games_list th {
+    text-align: left;
+    padding: .25em .5em;
+}
+
+.games_list td {
+    padding: .25em .5em;
+    border-right: 1px solid #aaa;
+}
