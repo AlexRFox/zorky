@@ -14,5 +14,39 @@ sudo ./install-production
 
 Test at http://zorky.willisson.org
 
+================================================================
+Here are some hints for setting up a development server:
 
+Install these packages:
 
+apache2 postgresql libpq-dev php5 php-db php5-pgsql php5-xdebug php-mode
+
+setup postgres:
+
+$ sudo -s
+# su postgres
+$ createuser YOUR_NAME_HERE
+answer Y to database superuser question
+$ createuser root
+answer Y to database superuser question
+$ createuser apache
+answer Y to database superuser question
+
+in /etc/postgresql/8.4/main/pg_hba.conf add
+
+   local all apache ident map=web
+
+(if you're using 8.3, the line use instead: "local all apache ident web")
+
+just before the line that says "local all all ident"
+
+in /etc/postgresl/8.4/main/pg_ident.conf append:
+
+   web www-data apache
+   web root apache
+   web YOUR_NAME_HERE apache
+
+in zorky/server, run
+
+$ createdb zorky-YOURNAME-dev
+$ psql -f schema zorky-YOURNAME-dev
