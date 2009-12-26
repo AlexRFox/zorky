@@ -33,6 +33,19 @@ if ($arg_kill_dfrotz == 1) {
 	redirect ("index.php");
 }
 
+function get_data ($port) {
+	global $arg_cmd;
+
+	$sock = socket_create (AF_INET, SOCK_STREAM, 0);
+	socket_connect ($sock, "localhost", $port);
+	if ($arg_cmd)
+		socket_write ($sock, $arg_cmd."\n");
+	$val = socket_read ($sock, 100000);
+	socket_close ($sock);
+	return ($val);
+}
+
+
 if ($arg_start_game) {
 	if (ereg ('[^-_a-zA-Z0-9]', $start)) {
 		echo ("invalid game");
@@ -55,8 +68,12 @@ if ($arg_start_game) {
 	}
 
 
+	sleep (1);
+	
+
 	$ret = (object)NULL;
 	$ret->status = "ok";
+	$ret->display = get_data ($port);
 
 	$jret = json_encode ($ret);
 
@@ -91,12 +108,7 @@ if ($arg_get_data == 1) {
 
 	$port = $r->port;
 
-	$sock = socket_create (AF_INET, SOCK_STREAM, 0);
-	socket_connect ($sock, "localhost", $port);
-	if ($arg_cmd)
-		socket_write ($sock, $arg_cmd."\n");
-	$val = socket_read ($sock, 100000);
-	socket_close ($sock);
+	$val = get_data ($port);
 
 	$ret = (object)NULL;
 	$ret->dispay = $val;
