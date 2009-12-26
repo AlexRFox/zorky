@@ -165,7 +165,7 @@ main (int argc, char **argv)
 
 	if (pid > 0) {
 		printf ("child1 %d\n", pid);
-		sprintf (buf, "%d\n", port);
+		sprintf (buf, "%d %d\n", port, pid);
 		write (orig_stdout, buf, strlen (buf));
 		exit (0);
 	}

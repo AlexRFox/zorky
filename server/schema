@@ -1,0 +1,8 @@
+create table zorky (
+       wave_id varchar,
+       port integer,
+       dttm timestamp without time zone default current_timestamp,
+       name varchar,
+       pid integer
+);
+alter table zorky owner to apache;

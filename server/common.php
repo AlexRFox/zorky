@@ -103,6 +103,16 @@ function ckerr ($str, $obj, $aux = "")
 
 global $raw_dbs;
 
+function do_commits () {
+	global $raw_dbs;
+
+	if (isset ($raw_dbs)) {
+		foreach ($raw_dbs as $db) {
+			query_db ($db, "commit work");
+		}
+	}
+}
+
 function get_raw_db ($dbname)
 {
 	global $raw_dbs;
@@ -122,7 +132,14 @@ function get_raw_db ($dbname)
 	
 	$raw_dbs[$dbname] = $db;
 
+	$db->query ("start transaction");
+
 	return ($db);
+}
+
+function get_db () {
+	global $db_name;
+	return (get_raw_db ($db_name));
 }
 
 function query_db ($dp, $stmt, $arr = NULL) {
@@ -184,6 +201,8 @@ function redirect ($target) {
 	}
 
 	session_write_close ();
+
+	do_commits ();
 
 	ob_clean ();
 	header ("Location: $target");
@@ -250,6 +269,8 @@ function pfinish () {
 		."</html>\n";
 
 	echo ($ret);
+
+	do_commits ();
 
 	exit ();
 }
