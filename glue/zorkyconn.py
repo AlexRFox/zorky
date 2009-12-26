@@ -1,43 +1,35 @@
 #! /usr/bin/env python
 
-import httplib, urllib, simplejson
+import httplib, simplejson, urllib2
 
-production = "willisson.org"
-development = "rhino.local"
+production = "http://willisson.org:9001/"
+development = "http://rhino.local:9001/"
 
 if True:
     hosturl = production
 else:
     hosturl = development
 
-port = 9001
-
-def sendcmd (wave_id, cmd):
-    safecmd = urllib.quote (cmd)
-    tar = "/api.php?get_data=1&wave_id=" + str (wave_id) + "&cmd=" + safecmd
-    conn = httplib.HTTPConnection (hosturl, port)
-    conn.request ("GET", tar)
-    r1 = conn.getresponse ()
+def send_cmd (wave_id, cmd = "l"):
+    r1 = urllib2.urlopen (hosturl + "api.php?get_data=1&wave_id=" + wave_id +
+                          "&cmd=" + cmd)
 
     decjson = simplejson.load (r1)
 
     return decjson
 
 def start (wave_id, game_name = "zork1"):
-    conn = httplib.HTTPConnection (hosturl, port)
-    tar = "/api.php?start_game=" + game_name + "&wave_id=" + wave_id
-    conn.request ("GET", tar)
-    r1 = conn.getresponse ()
+    r1 = urllib2.urlopen (hosturl + "api.php?start_game="
+                          + game_name + "&wave_id=" + wave_id)
 
     decjson = simplejson.load (r1)
     
     return decjson
 
 def game_list ():
-    conn = httplib.HTTPConnection (hosturl, port)
-    conn.request ("GET", "/api.php?list_avail_games=1")
-    r1 = conn.getresponse ()
-
+    r1 = urllib2.urlopen (hosturl + "api.php?list_avail_games=1")
+    
     decjson = simplejson.load (r1)
 
     return decjson
+
