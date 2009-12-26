@@ -12,7 +12,7 @@ make dumb
 cd server
 sudo ./install-production
 
-Test at http://willisson.org:9001
+Test at http://zorky.willisson.org
 
 
 

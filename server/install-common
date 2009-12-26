@@ -24,6 +24,18 @@ production)
 esac
 
 
+if [ "$db_mode" = "production" ]
+then
+    test -z "`git ls-files -o -m --exclude-standard`"
+    if [ $? != 0 ]
+    then
+	echo "working directory is dirty - it has to be clean"
+	echo "to do install-production"
+	git status
+	exit 1
+    fi
+fi
+
 db_name=zorky-${conf_key}
 apache_conf_dir=/etc/apache2/conf.d
 apachectl_cmd=apache2ctl
@@ -74,6 +86,13 @@ then
 	echo "need apache conf update ... run this as root:"
 	echo ""
 	echo "cp $apache_conf $apache_conf_dir/. ; $apachectl_cmd graceful"
+	exit 1
+    fi
+
+    x=`git status | grep 'ahead'`
+    if [ ! -z "$x" ]
+    then
+	echo "It looks like you need to do a git push first"
 	exit 1
     fi
 fi
