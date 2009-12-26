@@ -24,7 +24,7 @@ production)
 esac
 
 
-db_name=dpmt-${conf_key}
+db_name=zorky-${conf_key}
 apache_conf_dir=/etc/apache2/conf.d
 apachectl_cmd=apache2ctl
 site_root=/var/www/html/zorky-${conf_key}
