@@ -33,10 +33,12 @@ aux_dir=/var/zorky-${conf_key}
 if [ $db_mode = production ]
 then
     x=`git ls-files -o -m --exclude-standard`
-    if [ ! -z "$x" ]
+    if [  -z "$x" ]
     then
-	echo "working directory is dirty - it has to be clean"
-	echo "to do install-production"
+	echo ""
+	echo "*** working directory is dirty - it has to be clean"
+	echo "*** to do install-production"
+	echo ""
 	git status
 	exit 1
     fi
@@ -48,7 +50,13 @@ then
 	exit 1
     fi
 
-    installed_commit=`cat ${site_root}/commit`
+    commit_file=${site_root}/commit
+    if [ -r $commit_file ]
+    then
+	installed_commit=`cat ${commit_file}`
+    else
+	installed_commit="none";
+    fi
     git rev-list HEAD | grep "^${installed_commit}" > /dev/null 2>&1
     if [ $? != 0 ]
     then
@@ -60,8 +68,7 @@ then
 	echo "If you really want to blast ahead, do this, then"
 	echo "run install-production again:"
 	echo ""
-	c=`git rev-list -n 1 HEAD`
-	echo "echo $c > ${site_root}/commit"
+	echo "git rev-list -n 1 HEAD > ${site_root}/commit"
 	exit 1
     fi
 fi
