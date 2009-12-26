@@ -18,9 +18,19 @@ def sendcmd (cmd, game_id = 38978):
 
 def start (game_name = "zork1"):
     conn = httplib.HTTPConnection (hosturl, port)
-    conn.request ("GET", "/api.php?startgame=zork1")
+    tar = "/api.php?start_game=" + game_name
+    conn.request ("GET", tar)
     r1 = conn.getresponse ()
 
     decjson = simplejson.load (r1)
     
+    return decjson
+
+def game_list ():
+    conn = httplib.HTTPConnection (hosturl, port)
+    conn.request ("GET", "/api.php?list_avail_games=1")
+    r1 = conn.getresponse ()
+
+    decjson = simplejson.load (r1)
+
     return decjson
