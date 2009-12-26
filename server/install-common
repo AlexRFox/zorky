@@ -23,19 +23,6 @@ production)
 	;;
 esac
 
-
-if [ "$db_mode" = "production" ]
-then
-    test -z "`git ls-files -o -m --exclude-standard`"
-    if [ $? != 0 ]
-    then
-	echo "working directory is dirty - it has to be clean"
-	echo "to do install-production"
-	git status
-	exit 1
-    fi
-fi
-
 db_name=zorky-${conf_key}
 apache_conf_dir=/etc/apache2/conf.d
 apachectl_cmd=apache2ctl
@@ -45,13 +32,49 @@ aux_dir=/var/zorky-${conf_key}
 
 if [ $db_mode = production ]
 then
-    make -q
+    x=`git ls-files -o -m --exclude-standard`
+    if [ ! -z "$x" ]
+    then
+	echo "working directory is dirty - it has to be clean"
+	echo "to do install-production"
+	git status
+	exit 1
+    fi
+
+    x=`git status | grep 'Your branch is ahead of'`
+    if [ ! -z "$x" ]
+    then
+	echo "It looks like you need to do a git push first"
+	exit 1
+    fi
+
+    installed_commit=`cat ${site_root}/commit`
+    git rev-list HEAD | grep "^${installed_commit}" > /dev/null 2>&1
     if [ $? != 0 ]
+    then
+	echo "the commit signature in ${site_root}/commit is"
+	echo "not an ancestor of the working directory."
+	echo "You probably need to do a git pull, retest on your"
+	echo "development machine, then try again."
+	echo ""
+	echo "If you really want to blast ahead, do this, then"
+	echo "run install-production again:"
+	echo ""
+	c=`git rev-list -n 1 HEAD`
+	echo "echo $c > ${site_root}/commit"
+	exit 1
+    fi
+fi
+
+
+make -q
+if [ $? != 0 ]
+then
+    if [ "$db_mode" = "production" ]
     then
 	echo "you need to run make"
 	exit 1
     fi
-else
     make
 fi
 
@@ -88,13 +111,6 @@ then
 	echo "cp $apache_conf $apache_conf_dir/. ; $apachectl_cmd graceful"
 	exit 1
     fi
-
-    x=`git status | grep 'ahead'`
-    if [ ! -z "$x" ]
-    then
-	echo "It looks like you need to do a git push first"
-	exit 1
-    fi
 fi
 
 mkdir -p -m 777 ${aux_dir}/tmp
@@ -123,3 +139,7 @@ then
 fi
 install -c -m 755 ../frotz-2.43/dfrotz ${aux_dir}/bin/.
 cp ../z5/* ${aux_dir}/z5/.
+
+rm -f ${site_root}/commit
+git rev-list -n 1 HEAD > ${site_root}/commit
+
