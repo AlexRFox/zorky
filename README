@@ -1,0 +1,18 @@
+playzorky
+
+Play zork or another interactive fiction game in a wave.
+
+SERVER INSTALL
+
+On willisson.org, clone the git resporitory, then:
+
+cd frotz-2.43
+make dumb
+
+cd server
+sudo ./install-production
+
+Test at http://willisson.org:9001
+
+
+

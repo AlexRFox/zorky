@@ -111,7 +111,6 @@ if ($arg_get_data == 1) {
 	$val = get_data ($port);
 
 	$ret = (object)NULL;
-	$ret->dispay = $val;
 	$ret->display = $val;
 
 	$jret = json_encode ($ret);

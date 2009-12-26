@@ -17,7 +17,7 @@ def send_cmd (wave_id, cmd = "l"):
 
     decjson = simplejson.load (r1)
 
-    data = decjson['dispay'].split ("\n\n", 1)
+    data = decjson['display'].split ("\n\n", 1)
 
     roomname = data[0][:45].strip ()
     score = int (data[0][51:61].strip ())

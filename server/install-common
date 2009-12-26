@@ -60,10 +60,22 @@ cat > ${site_root}/zorky-conf.php <<!
 cmp -s $apache_conf $apache_conf_dir/$apache_conf
 if [ $? != 0 ]
 then
+    if [ `id -u` = 0 ]
+    then
+	echo "updating apache conf"
+	cp $apache_conf $apache_conf_dir/. 
+	$apachectl_cmd graceful
+	if [ $? != 0 ]
+	then
+	    echo "error updating apache conf"
+	    exit 1
+	    fi
+    else
 	echo "need apache conf update ... run this as root:"
 	echo ""
 	echo "cp $apache_conf $apache_conf_dir/. ; $apachectl_cmd graceful"
 	exit 1
+    fi
 fi
 
 mkdir -p -m 777 ${aux_dir}/tmp
@@ -72,8 +84,7 @@ mkdir -p ${aux_dir}/z5
 
 if [ "$db_mode" = "production" ]
 then
-    rsync -t -i --files-from=SITE-FILES . ${site_root}/.
-
+    cp `cat SITE-FILES` ${site_root}/.
     install -c -m 755 run-dfrotz ${aux_dir}/bin/.
 else
     for f in `cat SITE-FILES`
@@ -88,7 +99,7 @@ fi
 
 if [ ! -x ../frotz-2.43/dfrotz ]
 then
-    echo "do make dumb in frotz first"
+    echo "do 'make dumb' in frotz first"
     exit 1
 fi
 install -c -m 755 ../frotz-2.43/dfrotz ${aux_dir}/bin/.
