@@ -17,7 +17,17 @@ def send_cmd (wave_id, cmd = "l"):
 
     decjson = simplejson.load (r1)
 
-    return decjson
+    data = decjson['dispay'].split ("\n\n", 1)
+
+    roomname = data[0][:45].strip ()
+    score = int (data[0][51:61].strip ())
+    moves = int (data[0][67:])
+    content = data[1][:-2]
+
+    output = {'roomname': roomname, 'score': score, 'moves': moves,
+              'content': content}
+
+    return output
 
 def start (wave_id, game_name = "zork1"):
     params = urllib.urlencode ({"start_game": game_name, "wave_id": wave_id})
@@ -25,8 +35,18 @@ def start (wave_id, game_name = "zork1"):
     r1 = urllib2.urlopen (hosturl + "api.php?" + params)
 
     decjson = simplejson.load (r1)
-    
-    return decjson
+
+    data = decjson['display'].split ("\n\n", 1)
+
+    roomname = data[0][:45].strip ()
+    score = int (data[0][51:61].strip ())
+    moves = int (data[0][67:])
+    content = data[1][:-2]
+
+    output = {'roomname': roomname, 'score': score, 'moves': moves,
+              'content': content}
+
+    return output
 
 def game_list ():
     params = urllib.urlencode ({"list_avail_games": 1})
@@ -36,3 +56,6 @@ def game_list ():
     decjson = simplejson.load (r1)
 
     return decjson
+
+print start ("a3")
+print send_cmd ("a3", "l")
