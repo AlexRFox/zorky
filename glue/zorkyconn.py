@@ -5,7 +5,7 @@ import httplib, urllib, simplejson
 production = "willisson.org"
 development = "rhino.local"
 
-if False:
+if True:
     hosturl = production
 else:
     hosturl = development
