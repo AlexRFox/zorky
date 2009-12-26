@@ -30,8 +30,8 @@ def blip_submitted (properties, context):
                 struck = True
         if not struck:
             command = (text.split ("\n")[0])[1:].strip()
-            add_blip (context, sendcmd (context.GetRootWavelet().GetWaveId(),
-                                        command))
+            add_blip (context, str(send_cmd (context.GetRootWavelet().GetWaveId(),
+                                         command)))
 
 
 if __name__ == "__main__":
