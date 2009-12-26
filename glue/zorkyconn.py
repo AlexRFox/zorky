@@ -2,12 +2,19 @@
 
 import httplib, urllib, simplejson
 
-hosturl = "willisson.org"
+production = "willisson.org"
+development = "rhino.local"
+
+if False:
+    hosturl = production
+else:
+    hosturl = development
+
 port = 9001
 
-def sendcmd (cmd, game_id = 38978):
+def sendcmd (wave_id, cmd):
     safecmd = urllib.quote (cmd)
-    tar = "/api.php?get_data=1&game_id=" + str (game_id) + "&cmd=" + safecmd
+    tar = "/api.php?get_data=1&wave_id=" + str (wave_id) + "&cmd=" + safecmd
     conn = httplib.HTTPConnection (hosturl, port)
     conn.request ("GET", tar)
     r1 = conn.getresponse ()
@@ -16,9 +23,9 @@ def sendcmd (cmd, game_id = 38978):
 
     return decjson
 
-def start (game_name = "zork1"):
+def start (wave_id, game_name = "zork1"):
     conn = httplib.HTTPConnection (hosturl, port)
-    tar = "/api.php?start_game=" + game_name
+    tar = "/api.php?start_game=" + game_name + "&wave_id=" + wave_id
     conn.request ("GET", tar)
     r1 = conn.getresponse ()
 
@@ -34,3 +41,6 @@ def game_list ():
     decjson = simplejson.load (r1)
 
     return decjson
+
+print start ("a42")
+print sendcmd ("a42", "i")
