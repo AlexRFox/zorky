@@ -2,12 +2,7 @@ from waveapi import events
 from waveapi import model
 from waveapi import robot
 
-import urllib2
-
 from zorkyconn import *
-
-def start():
-    return "The <i>Great</i> Underground Adventure"
 
 NAME = "playzorky"
 ROOT = "http://%s.appspot.com" % NAME
@@ -15,20 +10,29 @@ ROOT = "http://%s.appspot.com" % NAME
 title = ""
 
 def add_blip (context, string):
-    context.GetRootWavelet().CreateBlip().GetDocument().SetText (string)
+    new_blip = context.GetRootWavelet().CreateBlip()
+    new_blip.GetDocument().SetText (string)
 
 def self_added (properties, context):
-    initial_string = start ()
-    add_blip (context, "*Playing Zork*\n\n%s" % initial_string)
+    initial_string = start (context.GetRootWavelet().GetWaveId())
+    add_blip (context, "Playing Zork\n\n%s" % initial_string)
 
 def blip_submitted (properties, context):
     blip = context.GetBlipById (properties["blipId"])
+#    all_blips = context.GetBlipById(context.GetRootWavelet().GetRootBlipId()).GetChildBlipIds()
     text = blip.GetDocument().GetText()
+    annos = blip.GetAnnotations()
     if text[0] == ">":
-        command = (text.split ("\n")[0])[1:].strip()
-        add_blip (context, urllib2.urlopen ("http://www.google.com"))
-    else:
-        add_blip (context, "I did not recognize that line")
+        struck = False
+        for a in annos:
+            if a.name == "style/textDecoration" and a.value == "line-through" \
+               and a.range.start == 0:
+                struck = True
+        if not struck:
+            command = (text.split ("\n")[0])[1:].strip()
+            add_blip (context, sendcmd (context.GetRootWavelet().GetWaveId(),
+                                        command))
+
 
 if __name__ == "__main__":
 
