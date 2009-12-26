@@ -1,21 +1,36 @@
 #! /usr/bin/env python
 
-import httplib2, urllib, simplejson
+import httplib, urllib, simplejson
 
-#hosturl = "http://willisson.org/zorky.html"
-hosturl = "http://rhino.local:9001/"
+hosturl = "willisson.org"
+port = 9001
 
-def sendcmd (cmd):
+def sendcmd (cmd, game_id = 38978):
     safecmd = urllib.quote (cmd)
-    tar = hosturl + "?" + safecmd
-    tar = hosturl
-    h = httplib2.Http (".cache")
-    resp, content = h.request (tar, "GET")
+    tar = "/api.php?get_data=1&game_id=" + str (game_id) + "&cmd=" + safecmd
+    conn = httplib.HTTPConnection (hosturl, port)
+    conn.request ("GET", tar)
+    r1 = conn.getresponse ()
 
-    content = '{"menu": {   "id": "file",   "value": "File",   "popup": {     "menuitem": [       {"value": "New", "onclick": "CreateNewDoc()"},       {"value": "Open", "onclick": "OpenDoc()"},       {"value": "Close", "onclick": "CloseDoc()"}     ]   } }}'
-
-    decjson = simplejson.loads (content)
+    decjson = simplejson.load (r1)
 
     return decjson
 
-print sendcmd ("get all in bag")
+def start (game_name = "zork1"):
+    conn = httplib.HTTPConnection (hosturl, port)
+    tar = "/api.php?start_game=" + game_name
+    conn.request ("GET", tar)
+    r1 = conn.getresponse ()
+
+    decjson = simplejson.load (r1)
+    
+    return decjson
+
+def game_list ():
+    conn = httplib.HTTPConnection (hosturl, port)
+    conn.request ("GET", "/api.php?list_avail_games=1")
+    r1 = conn.getresponse ()
+
+    decjson = simplejson.load (r1)
+
+    return decjson
