@@ -124,10 +124,13 @@ mkdir -p -m 777 ${aux_dir}/tmp
 mkdir -p ${aux_dir}/bin
 mkdir -p ${aux_dir}/z5
 
+echo -n "doing setcap on run-dfrotz - may prompt for root password..."
+
 if [ "$db_mode" = "production" ]
 then
     cp `cat SITE-FILES` ${site_root}/.
     install -c -m 755 run-dfrotz ${aux_dir}/bin/.
+    sudo setcap cap_sys_chroot+ep ${aux_dir}/bin/run-dfrotz
 else
     for f in `cat SITE-FILES`
     do
@@ -137,7 +140,9 @@ else
 
     dir=`pwd`
     ln -sf $dir/run-dfrotz ${aux_dir}/bin/.
+    sudo setcap cap_sys_chroot+ep run-dfrotz
 fi
+echo ""
 
 if [ ! -x ../frotz-2.43/dfrotz ]
 then

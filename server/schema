@@ -1,4 +1,8 @@
+create sequence seq start 100;
+grant all on sequence seq to public;
+
 create table zorky (
+       id integer, -- seq
        wave_id varchar,
        port integer,
        dttm timestamp without time zone default current_timestamp,

@@ -12,6 +12,11 @@
 
 #include <netinet/in.h>
 
+#include <linux/capability.h>
+
+int no_fork;
+
+
 void
 usage (void)
 {
@@ -29,7 +34,7 @@ int tofrotz_fd;
 int fromfrotz_fd;
 
 char aux_dir[1000];
-char fullname[1000];
+char z5_filename[1000];
 
 char cmd_name[1000];
 
@@ -62,6 +67,58 @@ get_secs (void)
 
 double base_secs;
 
+char *game_dir;
+
+void
+chroot_link (char *from_name, char *to_name)
+{
+	if (link (from_name, to_name) < 0) {
+		fprintf (stderr, "error linking %s to %s\n",
+			 from_name, to_name);
+		exit (1);
+	}
+}
+
+void
+setup_chroot (void)
+{
+	char from_name[1000];
+	char to_name[1000];
+
+	if (mkdir (game_dir, 0755) < 0) {
+		printf ("error: mkdir %s\n", game_dir);
+		exit (1);
+	}
+
+	sprintf (from_name, "%s/bin/dfrotz", aux_dir);
+	sprintf (to_name, "%s/dfrotz", game_dir);
+	chroot_link (from_name, to_name);
+
+	sprintf (from_name, "%s/z5/%s.z5", aux_dir, zfile_name);
+	sprintf (to_name, "%s/game.z5", game_dir);
+	chroot_link (from_name, to_name);
+
+	if (chroot (game_dir) < 0) {
+		printf ("error doing chroot %s: redo install-dev\n", game_dir);
+		if (no_fork == 0) {
+			exit (1);
+		} else {
+			chdir (game_dir);
+		}
+	} else {
+		if (chdir ("/") < 0) {
+			printf ("chdir failed\n");
+			exit (1);
+		}
+		printf ("chdir ok\n");
+	}
+
+	sprintf (cmd_name, "./dfrotz");
+	sprintf (z5_filename, "game.z5");
+}
+
+char argbuf[1000];
+
 int
 main (int argc, char **argv)
 {
@@ -77,6 +134,14 @@ main (int argc, char **argv)
 	char buf[1000];
 	struct timeval tv;
 	double now;
+	char *outp;
+	int i;
+
+	outp = argbuf;
+	for (i = 0; i < argc; i++) {
+		sprintf (outp, "%s ", argv[i]);
+		outp += strlen (outp);
+	}
 
 	setbuf (stdout, NULL);
 	setbuf (stderr, NULL);
@@ -88,8 +153,14 @@ main (int argc, char **argv)
 	for (fd = 3; fd < 100; fd++)
 		close (fd);
 
-	while ((c = getopt (argc, argv, "k:L")) != EOF) {
+	while ((c = getopt (argc, argv, "k:Ld:n")) != EOF) {
 		switch (c) {
+		case 'n':
+			no_fork = 1;
+			break;
+		case 'd':
+			game_dir = optarg;
+			break;
 		case 'L':
 			use_logfile = 1;
 			break;
@@ -108,6 +179,11 @@ main (int argc, char **argv)
 
 	if (optind != argc)
 		usage ();
+
+	if (strlen (zfile_name) > 30) {
+		fprintf (stderr, "invalid zfile name\n");
+		exit (1);
+	}
 
 	if (conf_key == NULL) {
 		struct passwd *pw;
@@ -143,6 +219,9 @@ main (int argc, char **argv)
 		dup2 (log_fd, 2);
 	}
 
+	printf ("\n");
+	printf ("running: %s\n", argbuf);
+
 	listen_sock = socket (AF_INET, SOCK_STREAM, 0);
 	listen (listen_sock, 1);
 
@@ -157,10 +236,20 @@ main (int argc, char **argv)
 	printf ("startp id %d\n", getpid ());
 	printf ("port = %d\n", port);
 
-
-	if ((pid = fork ()) < 0) {
-		fprintf (stderr, "fork error\n");
+	if (game_dir == NULL) {
+		printf ("game_dir must be specified\n");
 		exit (1);
+	}
+
+	setup_chroot ();
+
+	if (no_fork) {
+		pid = 0;
+	} else {
+		if ((pid = fork ()) < 0) {
+			fprintf (stderr, "fork error\n");
+			exit (1);
+		}
 	}
 
 	if (pid > 0) {
@@ -172,14 +261,9 @@ main (int argc, char **argv)
 
 	close (orig_stdout);
 
-	sprintf (fullname, "%s/z5/%s.z5", aux_dir, zfile_name);
-	write (log_fd, fullname, strlen (fullname));
-
-	sprintf (cmd_name, "%s/bin/dfrotz", aux_dir);
-
 	ac = 0;
 	av[ac++] = cmd_name;
-	av[ac++] = fullname;
+	av[ac++] = z5_filename;
 	av[ac] = NULL;
 
 	if (pipe (fds_to_frotz) < 0
@@ -190,9 +274,13 @@ main (int argc, char **argv)
 
 	printf ("ready to fork frotz\n");
 
-	if ((pid = fork ()) < 0) {
-		fprintf (stderr, "fork error\n");
-		exit (1);
+	if (no_fork == 0) {
+		if ((pid = fork ()) < 0) {
+			fprintf (stderr, "fork error\n");
+			exit (1);
+		}
+	} else {
+		pid = 0;
 	}
 
 	if (pid == 0) {
@@ -205,15 +293,22 @@ main (int argc, char **argv)
 		close (fds_from_frotz[0]);
 		close (fds_from_frotz[1]);
 
-		for (fd = 3; fd < 100; fd++)
-			close (fd);
+		for (fd = 3; fd < 100; fd++) {
+			if (fd != log_fd)
+				close (fd);
+		}
 
-		sprintf (buf, "execing  %s\n", cmd_name);
+		sprintf (buf, "execing  %s %s %s %s %d %d\n",
+			 cmd_name, av[0], av[1], av[2],
+			 open (av[0],O_RDONLY),
+			 open (av[1],O_RDONLY));
 		write (log_fd, buf, strlen (buf));
+
 
 		execv (cmd_name, av);
 		
-		sprintf (buf, "exec failed %s\n", cmd_name);
+		sprintf (buf, "exec failed %s %s\n",
+			 cmd_name, strerror (errno));
 		write (log_fd, buf, strlen (buf));
 		exit (1);
 	}

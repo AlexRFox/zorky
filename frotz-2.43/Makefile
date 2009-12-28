@@ -171,7 +171,7 @@ all:	$(NAME) d$(NAME)
 dumb:		$(NAME)-dumb
 d$(NAME):	$(NAME)-dumb
 $(NAME)-dumb:		$(COMMON_TARGET) $(DUMB_TARGET)
-	$(CC) -o d$(BINNAME)$(EXTENSION) $(COMMON_TARGET) \
+	$(CC) -static -o d$(BINNAME)$(EXTENSION) $(COMMON_TARGET) \
 		$(DUMB_TARGET) $(LIB)
 
 .SUFFIXES:

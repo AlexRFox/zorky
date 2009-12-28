@@ -52,17 +52,24 @@ if ($arg_start_game) {
 		exit ();
 	}
 	
-	$cmd = sprintf ("%s/bin/run-dfrotz -L -k %s %s",
-			$aux_dir, $conf_key, $arg_start_game);
+	$q = query_db ($db, "select nextval('seq') as seq");
+	$r = fetch ($q);
+	$id = 0 + $r->seq;
+
+	$game_dir = sprintf ("%s/tmp/game-%d", $aux_dir, $id);
+
+	$cmd = sprintf ("%s/bin/run-dfrotz -L -k %s -d %s %s",
+			$aux_dir, $conf_key, $game_dir, $arg_start_game);
 	exec ($cmd, $result);
 
 	sscanf ($result[0], "%d %d", $port, $pid);
 
-	if ($arg_wave_id) {
+	if ($arg_wave_id && $port) {
 		query_db ($db,
-			  "insert into zorky (wave_id, port, name, pid)"
-			  ." values (?,?,?,?)",
-			  array ($arg_wave_id, $port, $arg_start_game, $pid));
+			  "insert into zorky (id, wave_id, port, name, pid)"
+			  ." values (?,?,?,?,?)",
+			  array ($id, $arg_wave_id, $port,
+				 $arg_start_game, $pid));
 
 		query_db ($db, "commit work");
 	}
@@ -78,13 +85,7 @@ if ($arg_start_game) {
 	$jret = json_encode ($ret);
 
 	if ($arg_debug == 1) {
-		pstart ();
-		$body .= "<pre>\n";
-		$body .= h($jret);
-		$body .= "</pre>\n";
-
-		$body .= mklink ("[back to home]", "index.php");
-		pfinish ();
+		redirect ("index.php");
 	}
 
 	ob_clean ();

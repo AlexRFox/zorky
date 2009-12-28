@@ -54,13 +54,14 @@ if ($arg_kill) {
 $body .= "<h1>Current games</h1>\n";
 
 $q = query_db ($db,
-	       "select wave_id,"
+	       "select id, wave_id,"
 	       ." to_char (dttm, 'YYYY-MM-DD HH24:MI:SS') as dttm,"
 	       ." name, pid"
 	       ." from zorky"
 	       ." order by dttm");
 $body .= "<table class='games_list'>\n";
 $body .= "<tr class='games_heading'>"
+	."<th>Id</th>"
 	."<th>Start</th>"
 	."<th>Game</th>"
 	."<th>Wave</th>"
@@ -68,6 +69,7 @@ $body .= "<tr class='games_heading'>"
 	."<th>Op</th>"
 	."</tr>\n";
 while (($r = fetch ($q)) != NULL) {
+	$id = 0 + $r->id;
 	$wave_id = $r->wave_id;
 	$dttm = $r->dttm;
 	$name = $r->name;
@@ -78,6 +80,7 @@ while (($r = fetch ($q)) != NULL) {
 				rawurlencode ($wave_id));
 
 	$body .= "<tr>\n";
+	$body .= sprintf ("<td>%s</td>", mklink($id, $data_target));
 	$body .= sprintf ("<td>%s</td>", mklink($dttm, $data_target));
 	$body .= sprintf ("<td>%s</td>", mklink($name, $data_target));
 	$body .= sprintf ("<td>%s</td>", mklink($wave_id, $data_target));
