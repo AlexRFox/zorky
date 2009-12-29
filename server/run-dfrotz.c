@@ -98,6 +98,7 @@ setup_chroot (void)
 	sprintf (to_name, "%s/game.z5", game_dir);
 	chroot_link (from_name, to_name);
 
+	seteuid (0);
 	if (chroot (game_dir) < 0) {
 		printf ("error doing chroot %s: redo install-dev\n", game_dir);
 		if (no_fork == 0) {
@@ -112,8 +113,9 @@ setup_chroot (void)
 		}
 		printf ("chdir ok\n");
 
-		setuid (getuid ());
 	}
+
+	setuid (getuid ());
 
 	sprintf (cmd_name, "./dfrotz");
 	sprintf (z5_filename, "game.z5");
@@ -138,6 +140,8 @@ main (int argc, char **argv)
 	double now;
 	char *outp;
 	int i;
+
+	seteuid (getuid ());
 
 	outp = argbuf;
 	for (i = 0; i < argc; i++) {
