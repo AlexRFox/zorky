@@ -111,6 +111,8 @@ setup_chroot (void)
 			exit (1);
 		}
 		printf ("chdir ok\n");
+
+		setuid (getuid ());
 	}
 
 	sprintf (cmd_name, "./dfrotz");
