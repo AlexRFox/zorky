@@ -20,8 +20,16 @@ def send_cmd (wave_id, cmd = "l"):
     data = decjson['display'].split ("\n\n", 1)
 
     roomname = data[0][:45].strip ()
-    score = int (data[0][51:61].strip ())
-    moves = int (data[0][67:])
+    try:
+        score = int (data[0][51:61].strip ())
+    except ValueError:
+        score = 0
+
+    try:
+        moves = int (data[0][67:])
+    except ValueError:
+        moves = 0
+
     content = data[1][:-2]
 
     output = {'roomname': roomname, 'score': score, 'moves': moves,
@@ -39,8 +47,16 @@ def start (wave_id, game_name = "zork1"):
     data = decjson['display'].split ("\n\n", 1)
 
     roomname = data[0][:45].strip ()
-    score = int (data[0][51:61].strip ())
-    moves = int (data[0][67:])
+    try:
+        score = int (data[0][51:61].strip ())
+    except ValueError:
+        score = 0
+
+    try:
+        moves = int (data[0][67:])
+    except ValueError:
+        moves = 0
+        
     content = data[1][:-2]
 
     output = {'roomname': roomname, 'score': score, 'moves': moves,
