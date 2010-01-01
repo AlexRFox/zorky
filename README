@@ -1,3 +1,7 @@
+alex notes:
+$ mkdir -p /var/zorky-YOURNAMEHERE-dev/bin
+# apt-get install libcap2-bin
+
 playzorky
 
 Play zork or another interactive fiction game in a wave.
