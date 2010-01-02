@@ -3,12 +3,10 @@
 import httplib, simplejson, urllib, urllib2
 
 production = "http://zorky.willisson.org/"
-development = "http://rhino.local:9001/"
+dev1 = "http://rhino.local:9001/"
+dev2 = "http://localhost:9001/"
 
-if True:
-    hosturl = production
-else:
-    hosturl = development
+hosturl = dev2
 
 def send_cmd (wave_id, cmd = "l"):
     params = urllib.urlencode ({"get_data": 1, "wave_id": wave_id, "cmd": cmd})
@@ -69,6 +67,15 @@ def game_list ():
 
     r1 = urllib2.urlopen (hosturl + "api.php?" + params)
     
+    decjson = simplejson.load (r1)
+
+    return decjson
+
+def check_saves ():
+    params = urllib.urlencode ({"list_saved_games": 1, "wave_id": wave_id})
+
+    r1 = urllib2.urlopen (hosturl + "api.php?" + params)
+
     decjson = simplejson.load (r1)
 
     return decjson
