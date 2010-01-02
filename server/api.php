@@ -174,8 +174,10 @@ if ($arg_end_game == 1) {
 			$pid = 0 + $r->pid;
 
 			posix_kill ($pid, 15);
+
 			query_db ($db, "delete from zorky where wave_id = ?",
 				  $arg_wave_id);
+			do_commits ();
 
 			$ret->display = "game ended";
 			echo (json_encode ($ret));
