@@ -3,6 +3,7 @@
 import httplib, simplejson, urllib, urllib2
 
 production = "http://zorky.willisson.org/"
+dev0 = "http://zorkydev.willisson.org/"
 dev1 = "http://rhino.local:9001/"
 dev2 = "http://localhost:9001/"
 
