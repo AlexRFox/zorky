@@ -7,55 +7,49 @@ $db = get_db ();
 $arg_debug = 0 + @$_REQUEST['debug'];
 
 $arg_start_game = trim (@$_REQUEST['start_game']);
-$arg_end_game = 0 + @$_REQUEST['end_game'];
+$arg_end_game = trim (@$_REQUEST['end_game']);
 $arg_kill_dfrotz = 0 + @$_REQUEST['kill_dfrotz'];
 $arg_get_data = 0 + @$_REQUEST['get_data'];
 $arg_cmd = trim (@$_REQUEST['cmd']);
 $arg_list_avail_games = 0 + @$_REQUEST['list_avail_games'];
-$arg_list_saved_games = 0 + @$_REQUEST['list_saved_games'];
-$arg_check_wave_id = 0 + @$_REQEUST['check_wave_id'];
+$arg_list_saved_games = trim (rawurldecode (@$_REQUEST['list_saved_games']));
+$arg_check_wave_id = trim (rawurldecode (@$_REQUEST['check_wave_id']));
 $arg_wave_id = trim (rawurldecode (@$_REQUEST['wave_id']));
 
-if ($arg_list_saved_games == 1) {
+if ($arg_list_saved_games) {
 	$ret = (object)NULL;
 
-	if ($arg_wave_id) {
-		$q = query_db ($db, "select id from zorky where wave_id = ?",
-			       $arg_wave_id);
+	$q = query_db ($db, "select id from zorky where wave_id = ?",
+		       $arg_wave_id);
 		
-		if (($r = fetch ($q)) == NULL) {
-			$ret->error = "wave_id not found";
-			echo (json_encode ($ret));
-			exit ();
-		}
-		
-		$id = 0 + $r->id;
-		$game_dir = opendir (sprintf ("%s/tmp/game-%d", $aux_dir, $id));
-		$names = array ();
-
-		while (($name = readdir ($game_dir)) != NULL) {
-			if (ereg ('\.z5$', $name) == 0
-			    && $name != "dfrotz"
-			    && $name != '.'
-			    && $name != '..') {
-				$names[] = $name;
-			}
-		}
-		
-		if (count ($names) == 0) {
-			$ret->error = "no saved games";
-			echo (json_encode ($ret));
-			exit ();
-		}
-
-		$ret->names = $names;
-		echo (json_encode ($ret));
-		exit ();
-	} else {
-		$ret->error = "wave_id required";
+	if (($r = fetch ($q)) == NULL) {
+		$ret->error = "wave_id not found";
 		echo (json_encode ($ret));
 		exit ();
 	}
+		
+	$id = 0 + $r->id;
+	$game_dir = opendir (sprintf ("%s/tmp/game-%d", $aux_dir, $id));
+	$names = array ();
+
+	while (($name = readdir ($game_dir)) != NULL) {
+		if (ereg ('\.z5$', $name) == 0
+		    && $name != "dfrotz"
+		    && $name != '.'
+		    && $name != '..') {
+			$names[] = $name;
+		}
+	}
+		
+	if (count ($names) == 0) {
+		$ret->error = "no saved games";
+		echo (json_encode ($ret));
+		exit ();
+	}
+
+	$ret->names = $names;
+	echo (json_encode ($ret));
+	exit ();
 }
 
 if ($arg_list_avail_games == 1) {
@@ -78,25 +72,18 @@ if ($arg_kill_dfrotz == 1) {
 	redirect ("index.php");
 }
 
-if ($arg_check_wave_id == 1) {
+if ($arg_check_wave_id) {
 	$ret = (object)NULL;
 
-	if ($arg_wave_id) {
-		$q = query_db ($db, "select 0 from zorky where wave_id = ?",
-			       $arg_wave_id);
+	$q = query_db ($db, "select 0 from zorky where wave_id = ?",
+		       $arg_check_wave_id);
 
-		if (($r = fetch ($q)) == NULL) {
-			$ret->status = "no games active in current wave_id";
-			echo (json_encode ($ret));
-			exit ();
-		} else {
-			$ret->status = "wave_id in use, must end current"
-				." game before starting a new one";
-			echo (json_encode ($ret));
-			exit ();
-		}
+	if (($r = fetch ($q)) == NULL) {
+		$ret->status = 1;
+		echo (json_encode ($ret));
+		exit ();
 	} else {
-		$ret->error = "wave_id required";
+		$ret->status = 0;
 		echo (json_encode ($ret));
 		exit ();
 	}
@@ -162,33 +149,27 @@ if ($arg_start_game) {
 	exit ();
 }
 
-if ($arg_end_game == 1) {
+if ($arg_end_game) {
 	$ret = (object)NULL;
 
-	if ($arg_wave_id) {
-		$q = query_db ($db,
-			       "select pid from zorky where wave_id = ?",
-			       $arg_wave_id);
+	$q = query_db ($db,
+		       "select pid from zorky where wave_id = ?",
+		       $arg_end_game);
 
-		if (($r = fetch ($q)) != NULL) {
-			$pid = 0 + $r->pid;
+	if (($r = fetch ($q)) != NULL) {
+		$pid = 0 + $r->pid;
 
-			posix_kill ($pid, 15);
+		posix_kill ($pid, 15);
 
-			query_db ($db, "delete from zorky where wave_id = ?",
-				  $arg_wave_id);
-			do_commits ();
+		query_db ($db, "delete from zorky where wave_id = ?",
+			  $arg_end_game);
+		do_commits ();
 
-			$ret->display = "game ended";
-			echo (json_encode ($ret));
-			exit ();
-		} else {
-			$ret->error = "wave_id not found";
-			echo (json_encode ($ret));
-			exit ();
-		}
+		$ret->display = "game ended";
+		echo (json_encode ($ret));
+		exit ();
 	} else {
-		$ret->error = "wave_id required";
+		$ret->error = "wave_id not found";
 		echo (json_encode ($ret));
 		exit ();
 	}
