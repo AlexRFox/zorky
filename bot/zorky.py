@@ -22,9 +22,6 @@ def start (wave_id, game_name):
 
     response = conn.start (wave_id, game_name)
 
-    if len (response['error']):
-        return response['error']
-
     return response['content']
 
 def game_list ():
@@ -35,7 +32,7 @@ def game_list ():
     games.sort()
 
     return ("Possible games (choose one by starting a blip with \"/game " +
-            "<name>\" or \"/play <name> \"):\n" + '\n'.join (games))
+            "<name>\"):\n" + '\n'.join (games))
 
 def struck (annos):
     struck_out = False
@@ -88,10 +85,7 @@ def blip_submitted (properties, context):
                 game = command[5:].strip()
                 initial_string = start (context.GetRootWavelet().GetWaveId(),
                                         game)
-                if type (initial_string) == type ("str"):
-                    add_blip (context, "%s" % initial_string)
-                else:
-                    add_blip (context, "Playing %s\n\n%s\n>" % (game, initial_string), True)
+                add_blip (context, "Playing %s\n\n%s\n>" % (game, initial_string), True)
             
 if __name__ == "__main__":
 
