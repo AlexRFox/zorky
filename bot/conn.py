@@ -59,5 +59,3 @@ def check_saves ():
     decjson = simplejson.load (r1)
 
     return decjson
-
-print start ("a123")
