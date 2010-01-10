@@ -78,8 +78,7 @@ if ($arg_check_wave_id) {
 	$q = query_db ($db, "select 0 from zorky where wave_id = ?",
 		       $arg_check_wave_id);
 
-#	if (($r = fetch ($q)) == NULL) {
-	if (0) {
+	if (($r = fetch ($q)) == NULL) {
 		$ret->status = 1;
 		echo (json_encode ($ret));
 		exit ();
