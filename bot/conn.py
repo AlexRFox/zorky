@@ -18,8 +18,8 @@ def start (wave_id, game_name = "zork1"):
     r1 = urllib2.urlopen (hosturl + params)
     decjson = simplejson.load (r1)
     if decjson['status'] == 0:
-        output = {'error': "wave_id in use, please end current" + \
-                      " game before starting a new one"}
+        output = "error: wave_id in use, please end current" + \
+                      " game before starting a new one"
         return output
 
     params = urllib.urlencode ({"start_game": game_name, "wave_id": wave_id})

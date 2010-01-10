@@ -88,7 +88,10 @@ def blip_submitted (properties, context):
                 game = command[5:].strip()
                 initial_string = start (context.GetRootWavelet().GetWaveId(),
                                         game)
-                add_blip (context, "Playing %s\n\n%s\n>" % (game, initial_string), True)
+                if type (initial_string) == type ("str"):
+                    add_blip (context, "%s" % initial_string)
+                else:
+                    add_blip (context, "Playing %s\n\n%s\n>" % (game, initial_string), True)
             
 if __name__ == "__main__":
 
