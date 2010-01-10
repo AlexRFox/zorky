@@ -3,7 +3,7 @@ from waveapi import model
 from waveapi import robot
 import waveapi.document
 
-import zorkyconn
+import conn
 
 NAME = "playzorky"
 ROOT = "http://%s.appspot.com" % NAME
@@ -11,28 +11,31 @@ ROOT = "http://%s.appspot.com" % NAME
 title = ""
 
 def send_cmd (wave_id, command):
-    "Make zorkyconn.send_cmd()'s output nice"
+    "Make conn.send_cmd()'s output nice"
 
-    response = zorkyconn.send_cmd (wave_id, command)
+    response = conn.send_cmd (wave_id, command)
 
     return response['content']
 
 def start (wave_id, game_name):
-    "Make zorkyconn.start()'s output nice"
+    "Make conn.start()'s output nice"
 
-    response = zorkyconn.start (wave_id, game_name)
+    response = conn.start (wave_id, game_name)
+
+    if len (response['error']):
+        return response['error']
 
     return response['content']
 
 def game_list ():
-    "Make zorkyconn.game_list()'s output nice"
+    "Make conn.game_list()'s output nice"
 
-    games = zorkyconn.game_list()['names']
+    games = conn.game_list()['names']
     games = map (lambda s: s.strip(".z5"), games)
     games.sort()
 
     return ("Possible games (choose one by starting a blip with \"/game " +
-            "<name>\"):\n" + '\n'.join (games))
+            "<name>\" or \"/play <name> \"):\n" + '\n'.join (games))
 
 def struck (annos):
     struck_out = False

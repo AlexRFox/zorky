@@ -1,0 +1,2 @@
+zorky:
+	python conn.py

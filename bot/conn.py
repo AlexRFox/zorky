@@ -2,10 +2,7 @@
 
 import httplib, simplejson, urllib, urllib2
 
-production = "http://zorky.willisson.org/api.php?"
-dev = "http://localhost:9001/api.php?"
-
-hosturl = dev
+hosturl = "http://zorky.willisson.org/api.php?"
 
 def send_cmd (wave_id, cmd = "l"):
     params = urllib.urlencode ({"get_data": 1, "wave_id": wave_id, "cmd": cmd})
@@ -14,33 +11,13 @@ def send_cmd (wave_id, cmd = "l"):
 
     decjson = simplejson.load (r1)
 
-#    data = decjson['display'].split ("\n\n", 1)
-
-#    roomname = data[0][:45].strip ()
-#    try:
-#        score = int (data[0][51:61].strip ())
-#    except ValueError:
-    #     score = 0
-
-    # try:
-    #     moves = int (data[0][67:])
-    # except ValueError:
-    #     moves = 0
-
-    # content = data[1][:-2]
-
-    # output = {'roomname': roomname, 'score': score, 'moves': moves,
-    #           'content': content}
-
-#    return output
-
     return decjson
 
 def start (wave_id, game_name = "zork1"):
     params = urllib.urlencode ({"check_wave_id": wave_id})
     r1 = urllib2.urlopen (hosturl + params)
     decjson = simplejson.load (r1)
-    if (decjson['status'] == 0):
+    if decjson['status'] == 0:
         output = {'error': "wave_id in use, please end current" + \
                       " game before starting a new one"}
         return output
@@ -51,25 +28,7 @@ def start (wave_id, game_name = "zork1"):
 
     decjson = simplejson.load (r1)
 
-    data = decjson['display'].split ("\n\n", 1)
-
-    roomname = data[0][:45].strip ()
-    try:
-        score = int (data[0][51:61].strip ())
-    except ValueError:
-        score = 0
-
-    try:
-        moves = int (data[0][67:])
-    except ValueError:
-        moves = 0
-        
-    content = data[1][:-2]
-
-    output = {'roomname': roomname, 'score': score, 'moves': moves,
-              'content': content}
-
-    return output
+    return decjson
 
 def end (wave_id):
     content = send_cmd (wave_id, "quit")
