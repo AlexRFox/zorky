@@ -1,10 +1,8 @@
-alex notes:
-$ mkdir -p /var/zorky-YOURNAMEHERE-dev/bin
-# apt-get install libcap2-bin
-
 playzorky
 
 Play zork or another interactive fiction game in a wave.
+
+zorky started in Willisson Christmas Hackathon 2009
 
 SERVER INSTALL
 
@@ -59,4 +57,8 @@ copy zorky-rhino-pace-dev.conf to zorky-YOUR_HOSTNAME-YOUR_NAME-dev.conf
 edit in obvious substitutions
 
 run install-dev
+
+alex notes:
+$ mkdir -p /var/zorky-YOURNAMEHERE-dev/bin
+# apt-get install libcap2-bin
 
