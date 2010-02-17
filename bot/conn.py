@@ -51,7 +51,7 @@ def game_list ():
 
     return decjson
 
-def check_saves ():
+def check_saves (wave_id):
     params = urllib.urlencode ({"list_saved_games": 1, "wave_id": wave_id})
 
     r1 = urllib2.urlopen (hosturl + params)
